@@ -3,8 +3,9 @@ FROM fedora:31
 RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
 RUN dnf upgrade -y && dnf update -y
 
-WORKDIR /app
-COPY build.sh choose_system.py resume.tex altacv.cls /app/
+COPY build.sh choose_system.py /app/
+COPY CV/resume.tex /app/resume.tex
+COPY altacv.cls /app/
 
 RUN dnf install -y \
     texlive-collection-latexrecommended \
@@ -31,11 +32,13 @@ RUN dnf install -y \
     texlive-helvetic \
     texlive-carlito \
     texlive-fira \
-    liberation-fonts \  # Шрифт Liberation Sans (аналог Arial)
+    liberation-fonts \
     google-noto-sans-fonts \
     && dnf clean all
 
 RUN fc-cache -fv
+
+WORKDIR /app
 
 RUN chmod 755 build.sh
 CMD ["./build.sh"]
