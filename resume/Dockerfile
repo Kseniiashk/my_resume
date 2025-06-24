@@ -3,6 +3,9 @@ FROM fedora:31
 RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
 RUN dnf upgrade -y && dnf update -y
 
+WORKDIR /app
+COPY build.sh choose_system.py resume.tex altacv.cls /app/
+
 RUN dnf install -y \
     texlive-collection-latexrecommended \
     texlive-collection-fontsrecommended \
@@ -34,7 +37,5 @@ RUN dnf install -y \
 
 RUN fc-cache -fv
 
-WORKDIR /app
-COPY . .
 RUN chmod 755 build.sh
 CMD ["./build.sh"]
