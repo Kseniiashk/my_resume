@@ -17,9 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         
+      - name: Debug files
+        run: |
+          echo "Repository contents:"
+          ls -la
+          echo "build.sh exists: $(test -f build.sh && echo 'yes' || echo 'no')"
+        
       - name: Setup Fedora 32 Environment
         run: |
-          # Создаем Dockerfile
           cat << EOF > Dockerfile
           FROM fedora:31
 
@@ -61,22 +66,23 @@ jobs:
           RUN fc-cache -fv
 
           WORKDIR /app
-          COPY . .
+          COPY build.sh choose_system.py resume.tex altacv.cls /app/
           RUN chmod 755 build.sh
           CMD ["./build.sh"]
           EOF
           
+          # Собираем и запускаем контейнер
           docker build -t fedora32-tex .
           docker run --rm -v $(pwd):/app/output fedora32-tex
 
       - name: Verify PDF exists
         run: |
           if [ ! -f resume.pdf ]; then
-            echo "PDF file not generated!"
+            echo "❌ PDF file not generated!"
             ls -la
             exit 1
           else
-            echo "PDF generated successfully"
+            echo "✅ PDF generated successfully"
             ls -lh resume.pdf
           fi
 
@@ -85,10 +91,6 @@ jobs:
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
-          # Если используются изображения в резюме
-          # cp images/* public/cv/  # Раскомментируйте, если нужны изображения
-          
-          # Создаем редирект
           echo '<!DOCTYPE html>
           <html>
             <head>
