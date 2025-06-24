@@ -1,0 +1,160 @@
+\documentclass[10pt, a4paper]{altacv}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{hyperref}
+\usepackage{fontspec}
+\usepackage{xcolor}
+
+% Настройки шрифта (если Arial недоступен, используем Liberation Sans)
+\setmainfont{Arial}[
+    Path = ./fonts/,
+    Extension = .ttf,
+    UprightFont = *,
+    BoldFont = *-Bold,
+    ItalicFont = *-Italic,
+    BoldItalicFont = *-BoldItalic
+]
+
+% Альтернативный шрифт для Linux
+\setsansfont{Liberation Sans}[
+    Path = ./fonts/,
+    Extension = .ttf,
+    UprightFont = *,
+    BoldFont = *-Bold,
+    ItalicFont = *-Italic,
+    BoldItalicFont = *-BoldItalic
+]
+
+% Настройки стиля
+\geometry{left=1cm, right=1cm, top=1cm, bottom=1cm}
+\renewcommand{\divider}{\textcolor{body!30}{\hspace{1pt}} % Добавлен цвет разделителя
+\definecolor{VividPurple}{HTML}{000000}
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{666666}
+\colorlet{heading}{VividPurple}
+\colorlet{accent}{VividPurple}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+% Настройка гиперссылок
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accent,
+    urlcolor=accent,
+    pdftitle={Резюме Ксении Шкулевой},
+    pdfauthor={Ксения Шкулева}
+}
+
+\begin{document}
+\name{Ксения Шкулева}
+\tagline{Data Scientist • Специалист по ИИ}
+\personalinfo{
+  \email{ksshkuleva@gmail.com}
+  \phone{+7 (965) 178-5997}
+  \location{Москва, Россия}
+  \homepage{github.com/Kseniiashk}
+  \linkedin{linkedin.com/in/ksenia-shkuleva} % Обновленная ссылка
+  \github{github.com/Kseniiashk} % Добавлен GitHub
+  \orcid{orcid.org/0000-0000-0000-0000} % При наличии
+}
+
+\begin{fullwidth}
+\makecvheader
+\end{fullwidth}
+
+% Образование
+\cvsection{Образование}
+\cvevent{Бакалавр компьютерных наук}{НИУ ВШЭ}{2023 -- настоящее время}{Москва}
+\begin{itemize}
+  \item Специализация: Искусственный интеллект и машинное обучение
+  \item Участник школы по анализу данных НИУ ВШЭ
+  \item Курсы: Алгоритмы и структуры данных, Машинное обучение, NLP
+\end{itemize}
+
+\divider
+
+\cvevent{Информатический класс}{СУНЦ МГУ}{2022 -- 2024}{Москва}
+\begin{itemize}
+  \item Углубленное изучение программирования и математики
+  \item Подготовка к олимпиадам по информатике
+\end{itemize}
+
+% Опыт работы
+\cvsection{Опыт работы}
+\cvevent{Стажер RAG Developer}{T-Bank}{Март 2024 -- настоящее время}{Москва}
+\begin{itemize}
+  \item Разработка RAG-пайплайнов с использованием NLP
+  \item Реализация гибридного поиска документов (сокращение времени обработки на 40\%)
+  \item Интеграция с чат-ботами через FastAPI
+  \item Оптимизация промптов для LLM (улучшение релевантности ответов на 30\%)
+  \item Контейнеризация решений с Docker
+\end{itemize}
+
+\divider
+
+\cvevent{Стажер ML Developer}{T-Bank}{Июнь 2024 -- Август 2024}{Москва}
+\begin{itemize}
+  \item Разработка Telegram-бота для автоматизации обработки запросов (500+ в день)
+  \item Создание системы кластеризации вопросов (точность 92\%)
+  \item Анализ тематик вопросов пользователей (выявление 5 ключевых проблем)
+  \item Предобработка текстовых данных и подбор моделей
+\end{itemize}
+
+\divider
+
+\cvevent{PHP-программист}{DoorHan}{Июнь 2023 -- Март 2024}{Москва}
+\begin{itemize}
+  \item Разработка и поддержка веб-приложений
+  \item Создание новых функций для корпоративной CRM-системы
+  \item Оптимизация SQL-запросов (сокращение времени отклика на 35\%)
+  \item Работа с MySQL, JavaScript, CSS/HTML
+\end{itemize}
+
+% Навыки
+\cvsection{Технические навыки}
+\begin{cvskills}
+  \cvskill{Языки}{Python, SQL, JavaScript, PHP, C++}
+  \cvskill{ML/DS}{TensorFlow, PyTorch, NLP, RAG-системы, Кластеризация}
+  \cvskill{Инструменты}{Docker, Git, FastAPI, Jupyter, MySQL, Linux}
+  \cvskill{Концепции}{Алгоритмы, MLOps, Асинхронное программирование}
+\end{cvskills}
+
+% Достижения
+\cvsection{Достижения}
+\begin{itemize}
+  \item \textbf{Победитель} Всероссийской олимпиады по информатике (2024)
+  \item \textbf{Призер} Всероссийской олимпиады по информатике (2023)
+  \item \textbf{Финалист} Всероссийской олимпиады по ИИ (2023)
+  \item \textbf{Призер} Открытой олимпиады по программированию (2023, 2024)
+  \item \textbf{Призер} Всероссийской командной школьной олимпиады (2022, 2023)
+\end{itemize}
+
+% Проекты
+\cvsection{Проекты}
+\cvproject{Telegram-бот для генерации изображений}
+\begin{itemize}
+  \item Разработка GAN-модели для генерации изображений
+  \item Интеграция с Telegram через асинхронные запросы
+  \item Модель классификации эмоций животных (EfficientNetB5)
+\end{itemize}
+
+\divider
+
+\cvproject{Система анализа пользовательских запросов}
+\begin{itemize}
+  \item Pipeline для кластеризации и тематического анализа
+  \item Визуализация результатов через интерактивные дашборды
+  \item Автоматическое выявление ключевых проблем пользователей
+\end{itemize}
+
+\divider
+
+\cvproject{Диффузионные модели для генерации контента}
+\begin{itemize}
+  \item Исследование и применение диффузионных моделей
+  \item Генерация изображений по текстовым описаниям
+  \item Оптимизация скорости генерации
+\end{itemize}
+
+\end{document}

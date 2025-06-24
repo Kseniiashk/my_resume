@@ -1,0 +1,24 @@
+name: Build Resume
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build and run Docker container
+      run: |
+        docker build -t resume .
+        mkdir -p output
+        docker run --rm -v "$(pwd)/output:/output" resume
+
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: resume.pdf
+        path: output/main.pdf
