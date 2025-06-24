@@ -1,63 +1,83 @@
-name: Build Resume PDF
+name: Build Resume
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: docker.io/library/fedora:32
-      options: --user root
-
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Setup Fedora 32 Environment
+        run: |
+          # Создаем Dockerfile для Fedora 32
+          echo "FROM fedora:31" > Dockerfile.fedora32
+          echo "RUN dnf upgrade -y --releasever=32 && \\" >> Dockerfile.fedora32
+          echo "    dnf update -y && \\" >> Dockerfile.fedora32
+          echo "    dnf install -y \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-latexrecommended \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-fontsrecommended \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-pictures \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-science \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-langcyrillic \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-latexextra \\" >> Dockerfile.fedora32
+          echo "        texlive-collection-fontsextra \\" >> Dockerfile.fedora32
+          echo "        texlive-wallpaper \\" >> Dockerfile.fedora32
+          echo "        texlive-geometry \\" >> Dockerfile.fedora32
+          echo "        texlive-fontawesome5 \\" >> Dockerfile.fedora32
+          echo "        texlive-hyperref \\" >> Dockerfile.fedora32
+          echo "        texlive-hyphenat \\" >> Dockerfile.fedora32
+          echo "        texlive-graphics \\" >> Dockerfile.fedora32
+          echo "        texlive-tools \\" >> Dockerfile.fedora32
+          echo "        make \\" >> Dockerfile.fedora32
+          echo "        git \\" >> Dockerfile.fedora32
+          echo "        wget \\" >> Dockerfile.fedora32
+          echo "        unzip \\" >> Dockerfile.fedora32
+          echo "        python3 \\" >> Dockerfile.fedora32
+          echo "    && dnf clean all" >> Dockerfile.fedora32
+          echo "WORKDIR /app" >> Dockerfile.fedora32
+          echo "COPY . ." >> Dockerfile.fedora32
+          echo "RUN chmod 755 build.sh" >> Dockerfile.fedora32
+          echo 'CMD ["./build.sh"]' >> Dockerfile.fedora32
+          
+          # Собираем Docker образ
+          docker build -t fedora32-tex -f Dockerfile.fedora32 .
+          
+          # Запускаем сборку PDF в контейнере
+          docker run --rm -v $(pwd):/app/output fedora32-tex
 
-    - name: Install dependencies
-      run: |
-        dnf update -y
-        dnf install -y \
-          texlive-collection-latexrecommended \
-          texlive-collection-fontsrecommended \
-          texlive-collection-pictures \
-          texlive-collection-science \
-          texlive-collection-langcyrillic \
-          texlive-collection-latexextra \
-          texlive-collection-fontsextra \
-          texlive-wallpaper \
-          texlive-geometry \
-          texlive-fontawesome5 \
-          texlive-hyperref \
-          texlive-hyphenat \
-          texlive-graphics \
-          texlive-tools \
-          make \
-          git \
-          wget \
-          unzip \
-          python3
+      - name: Prepare GitHub Pages
+        run: |
+          mkdir -p public/cv
+          cp resume.pdf public/cv/
+          
+          echo '<!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>Resume - Ксения Шкулева</title>
+              <meta http-equiv="refresh" content="0; url=cv/resume.pdf">
+              <script>window.location.href="cv/resume.pdf";</script>
+            </head>
+            <body>
+              <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p>
+            </body>
+          </html>' > public/index.html
 
-    - name: Install fonts
-      run: |
-        wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Arial.zip
-        unzip Arial.zip -d /usr/share/fonts/
-        fc-cache -fv
-        rm Arial.zip
-
-    - name: Build PDF
-      run: |
-        cd /__w/resume/resume  # GitHub Actions рабочая директория
-        pdflatex -interaction=nonstopmode resume.tex
-        pdflatex -interaction=nonstopmode resume.tex  # Run twice for references
-        rm -f *.aux *.log *.out *.bcf *.run.xml
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: resume-pdf
-        path: resume.pdf
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true
+          keep_files: false
+          commit_message: "Auto-update: $(date -u +'%Y-%m-%d %H:%M')"
