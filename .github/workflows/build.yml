@@ -17,16 +17,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         
-      - name: Debug files
+      - name: Setup Fedora 32 Environment
         run: |
-          echo "Repository contents:"
-          ls -la
-          ls -la CV/
-          echo "build.sh exists: $(test -f build.sh && echo 'yes' || echo 'no')"
-          echo "resume.tex exists: $(test -f CV/resume.tex && echo 'yes' || echo 'no')"
-        
-      - name: Build with Docker
-        run: |
+          # Создаем Dockerfile
+          cat << EOF > Dockerfile
+          FROM fedora:31
+
+          # Обновление до Fedora 32
+          RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
+          RUN dnf upgrade -y && dnf update -y
+
+          # Установка пакетов
+          RUN dnf install -y \\
+              texlive-collection-latexrecommended \\
+              texlive-collection-fontsrecommended \\
+              texlive-collection-pictures \\
+              texlive-collection-science \\
+              texlive-collection-langcyrillic \\
+              texlive-collection-latexextra \\
+              texlive-collection-fontsextra \\
+              texlive-wallpaper \\
+              texlive-geometry \\
+              texlive-fontawesome5 \\
+              texlive-hyperref \\
+              texlive-hyphenat \\
+              texlive-graphics \\
+              texlive-tools \\
+              make \\
+              git \\
+              wget \\
+              unzip \\
+              python3 \\
+              texlive-lm \\
+              texlive-psnfss \\
+              texlive-helvetic \\
+              texlive-carlito \\
+              texlive-fira \\
+              liberation-fonts \\
+              google-noto-sans-fonts \\
+              && dnf clean all
+
+          # Установка шрифтов
+          RUN fc-cache -fv
+
+          WORKDIR /app
+          COPY . .
+          RUN chmod 755 build.sh
+          CMD ["./build.sh"]
+          EOF
+          
           docker build -t fedora32-tex .
           docker run --rm -v $(pwd):/app/output fedora32-tex
 
@@ -46,9 +85,10 @@ jobs:
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
-          # Если в резюме есть изображения
-          # cp -r CV/images public/cv/
+          # Если используются изображения в резюме
+          # cp images/* public/cv/  # Раскомментируйте, если нужны изображения
           
+          # Создаем редирект
           echo '<!DOCTYPE html>
           <html>
             <head>
