@@ -1,24 +1,63 @@
-name: Build Resume
+name: Build Resume PDF
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: docker.io/library/fedora:32
+      options: --user root
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Build and run Docker container
+    - name: Install dependencies
       run: |
-        docker build -t resume .
-        mkdir -p output
-        docker run --rm -v "$(pwd)/output:/output" resume
+        dnf update -y
+        dnf install -y \
+          texlive-collection-latexrecommended \
+          texlive-collection-fontsrecommended \
+          texlive-collection-pictures \
+          texlive-collection-science \
+          texlive-collection-langcyrillic \
+          texlive-collection-latexextra \
+          texlive-collection-fontsextra \
+          texlive-wallpaper \
+          texlive-geometry \
+          texlive-fontawesome5 \
+          texlive-hyperref \
+          texlive-hyphenat \
+          texlive-graphics \
+          texlive-tools \
+          make \
+          git \
+          wget \
+          unzip \
+          python3
 
-    - name: Upload PDF artifact
+    - name: Install fonts
+      run: |
+        wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Arial.zip
+        unzip Arial.zip -d /usr/share/fonts/
+        fc-cache -fv
+        rm Arial.zip
+
+    - name: Build PDF
+      run: |
+        cd /__w/resume/resume  # GitHub Actions рабочая директория
+        pdflatex -interaction=nonstopmode resume.tex
+        pdflatex -interaction=nonstopmode resume.tex  # Run twice for references
+        rm -f *.aux *.log *.out *.bcf *.run.xml
+
+    - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: resume.pdf
-        path: output/main.pdf
+        name: resume-pdf
+        path: resume.pdf
