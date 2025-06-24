@@ -19,61 +19,58 @@ jobs:
         
       - name: Setup Fedora 32 Environment
         run: |
-          # Создаем минимальный Dockerfile
-          echo "FROM fedora:31" > Dockerfile
-          echo "RUN dnf upgrade -y --releasever=32 && \\" >> Dockerfile
-          echo "    dnf update -y && \\" >> Dockerfile
-          echo "    dnf install -y \\" >> Dockerfile
-          echo "        texlive-collection-latexrecommended \\" >> Dockerfile
-          echo "        texlive-collection-fontsrecommended \\" >> Dockerfile
-          echo "        texlive-collection-pictures \\" >> Dockerfile
-          echo "        texlive-collection-science \\" >> Dockerfile
-          echo "        texlive-collection-langcyrillic \\" >> Dockerfile
-          echo "        texlive-collection-latexextra \\" >> Dockerfile
-          echo "        texlive-collection-fontsextra \\" >> Dockerfile
-          echo "        texlive-wallpaper \\" >> Dockerfile
-          echo "        texlive-geometry \\" >> Dockerfile
-          echo "        texlive-fontawesome5 \\" >> Dockerfile
-          echo "        texlive-hyperref \\" >> Dockerfile
-          echo "        texlive-hyphenat \\" >> Dockerfile
-          echo "        texlive-graphics \\" >> Dockerfile
-          echo "        texlive-tools \\" >> Dockerfile
-          echo "        make \\" >> Dockerfile
-          echo "        git \\" >> Dockerfile
-          echo "        wget \\" >> Dockerfile
-          echo "        unzip \\" >> Dockerfile
-          echo "        python3 \\" >> Dockerfile
-          echo "    && dnf clean all" >> Dockerfile
-          echo "WORKDIR /app" >> Dockerfile
-          echo "COPY resume/build.sh /app/" >> Dockerfile
-          echo "COPY resume/choose_system.py /app/" >> Dockerfile
-          echo "COPY resume/resume.tex /app/" >> Dockerfile
-          echo "RUN chmod 755 build.sh" >> Dockerfile
-          echo 'CMD ["./build.sh"]' >> Dockerfile
-          
-          # Собираем Docker образ
-          docker build -t fedora32-tex .
-          
-          # Запускаем сборку PDF в контейнере
-          docker run --rm -v $(pwd):/app/output fedora32-tex
+          # Создаем Dockerfile
+          cat << EOF > Dockerfile
+          FROM fedora:31
 
-      - name: Verify PDF exists
-        run: |
-          if [ ! -f resume.pdf ]; then
-            echo "❌ PDF file not generated!"
-            ls -la
-            exit 1
-          else
-            echo "✅ PDF generated successfully"
-            ls -lh resume.pdf
-          fi
+          RUN dnf upgrade -y --releasever=32 && \\
+              dnf update -y && \\
+              dnf install -y \\
+                  texlive-collection-latexrecommended \\
+                  texlive-collection-fontsrecommended \\
+                  texlive-collection-pictures \\
+                  texlive-collection-science \\
+                  texlive-collection-langcyrillic \\
+                  texlive-collection-latexextra \\
+                  texlive-collection-fontsextra \\
+                  texlive-wallpaper \\
+                  texlive-geometry \\
+                  texlive-fontawesome5 \\
+                  texlive-hyperref \\
+                  texlive-hyphenat \\
+                  texlive-graphics \\
+                  texlive-tools \\
+                  make \\
+                  git \\
+                  wget \\
+                  unzip \\
+                  python3 \\
+                  texlive-lm \\
+                  texlive-psnfss \\
+                  texlive-helvetic \\
+                  texlive-carlito \\
+                  texlive-fira \\
+              && dnf clean all
+
+          RUN wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Arial.zip && \\
+              unzip -q Arial.zip -d /usr/share/fonts/ && \\
+              fc-cache -fv && \\
+              rm Arial.zip
+
+          WORKDIR /app
+          COPY . .
+          RUN chmod 755 build.sh
+          CMD ["./build.sh"]
+          EOF
+          
+          docker build -t fedora32-tex .
+          docker run --rm -v $(pwd):/app/output fedora32-tex
 
       - name: Prepare GitHub Pages
         run: |
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
-          # Создаем редирект
           echo '<!DOCTYPE html>
           <html>
             <head>
