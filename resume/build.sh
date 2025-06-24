@@ -6,6 +6,10 @@ if [ ! -d /usr/share/texmf/tex/latex/altacv ]; then
     texhash
 fi
 
+sed -i 's/\\setmainfont{Arial}/\\setmainfont{Liberation Sans}/' resume.tex
+
 pdflatex -interaction=nonstopmode resume.tex
 pdflatex -interaction=nonstopmode resume.tex  
 rm -f *.aux *.log *.out *.bcf *.run.xml
+
+cp resume.pdf /app/output/
