@@ -16,49 +16,64 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        
       - name: Setup Fedora 32 Environment
         run: |
-          # Создаем Dockerfile для Fedora 32
-          echo "FROM fedora:31" > Dockerfile.fedora32
-          echo "RUN dnf upgrade -y --releasever=32 && \\" >> Dockerfile.fedora32
-          echo "    dnf update -y && \\" >> Dockerfile.fedora32
-          echo "    dnf install -y \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-latexrecommended \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-fontsrecommended \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-pictures \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-science \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-langcyrillic \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-latexextra \\" >> Dockerfile.fedora32
-          echo "        texlive-collection-fontsextra \\" >> Dockerfile.fedora32
-          echo "        texlive-wallpaper \\" >> Dockerfile.fedora32
-          echo "        texlive-geometry \\" >> Dockerfile.fedora32
-          echo "        texlive-fontawesome5 \\" >> Dockerfile.fedora32
-          echo "        texlive-hyperref \\" >> Dockerfile.fedora32
-          echo "        texlive-hyphenat \\" >> Dockerfile.fedora32
-          echo "        texlive-graphics \\" >> Dockerfile.fedora32
-          echo "        texlive-tools \\" >> Dockerfile.fedora32
-          echo "        make \\" >> Dockerfile.fedora32
-          echo "        git \\" >> Dockerfile.fedora32
-          echo "        wget \\" >> Dockerfile.fedora32
-          echo "        unzip \\" >> Dockerfile.fedora32
-          echo "        python3 \\" >> Dockerfile.fedora32
-          echo "    && dnf clean all" >> Dockerfile.fedora32
-          echo "WORKDIR /app" >> Dockerfile.fedora32
-          echo "COPY . ." >> Dockerfile.fedora32
-          echo "RUN chmod 755 build.sh" >> Dockerfile.fedora32
-          echo 'CMD ["./build.sh"]' >> Dockerfile.fedora32
+          # Создаем минимальный Dockerfile
+          echo "FROM fedora:31" > Dockerfile
+          echo "RUN dnf upgrade -y --releasever=32 && \\" >> Dockerfile
+          echo "    dnf update -y && \\" >> Dockerfile
+          echo "    dnf install -y \\" >> Dockerfile
+          echo "        texlive-collection-latexrecommended \\" >> Dockerfile
+          echo "        texlive-collection-fontsrecommended \\" >> Dockerfile
+          echo "        texlive-collection-pictures \\" >> Dockerfile
+          echo "        texlive-collection-science \\" >> Dockerfile
+          echo "        texlive-collection-langcyrillic \\" >> Dockerfile
+          echo "        texlive-collection-latexextra \\" >> Dockerfile
+          echo "        texlive-collection-fontsextra \\" >> Dockerfile
+          echo "        texlive-wallpaper \\" >> Dockerfile
+          echo "        texlive-geometry \\" >> Dockerfile
+          echo "        texlive-fontawesome5 \\" >> Dockerfile
+          echo "        texlive-hyperref \\" >> Dockerfile
+          echo "        texlive-hyphenat \\" >> Dockerfile
+          echo "        texlive-graphics \\" >> Dockerfile
+          echo "        texlive-tools \\" >> Dockerfile
+          echo "        make \\" >> Dockerfile
+          echo "        git \\" >> Dockerfile
+          echo "        wget \\" >> Dockerfile
+          echo "        unzip \\" >> Dockerfile
+          echo "        python3 \\" >> Dockerfile
+          echo "    && dnf clean all" >> Dockerfile
+          echo "WORKDIR /app" >> Dockerfile
+          echo "COPY build.sh /app/" >> Dockerfile
+          echo "COPY choose_system.py /app/" >> Dockerfile
+          echo "COPY resume.tex /app/" >> Dockerfile
+          echo "RUN chmod 755 build.sh" >> Dockerfile
+          echo 'CMD ["./build.sh"]' >> Dockerfile
           
           # Собираем Docker образ
-          docker build -t fedora32-tex -f Dockerfile.fedora32 .
+          docker build -t fedora32-tex .
           
           # Запускаем сборку PDF в контейнере
           docker run --rm -v $(pwd):/app/output fedora32-tex
+
+      - name: Verify PDF exists
+        run: |
+          if [ ! -f resume.pdf ]; then
+            echo "❌ PDF file not generated!"
+            ls -la
+            exit 1
+          else
+            echo "✅ PDF generated successfully"
+            ls -lh resume.pdf
+          fi
 
       - name: Prepare GitHub Pages
         run: |
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
+          # Создаем редирект
           echo '<!DOCTYPE html>
           <html>
             <head>
