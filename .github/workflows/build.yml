@@ -45,9 +45,9 @@ jobs:
           echo "        python3 \\" >> Dockerfile
           echo "    && dnf clean all" >> Dockerfile
           echo "WORKDIR /app" >> Dockerfile
-          echo "COPY build.sh /app/" >> Dockerfile
-          echo "COPY choose_system.py /app/" >> Dockerfile
-          echo "COPY resume.tex /app/" >> Dockerfile
+          echo "COPY resume/build.sh /app/" >> Dockerfile
+          echo "COPY resume/choose_system.py /app/" >> Dockerfile
+          echo "COPY resume/resume.tex /app/" >> Dockerfile
           echo "RUN chmod 755 build.sh" >> Dockerfile
           echo 'CMD ["./build.sh"]' >> Dockerfile
           
