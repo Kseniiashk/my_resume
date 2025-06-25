@@ -33,6 +33,11 @@ jobs:
 
           # Установка пакетов
           RUN dnf install -y \\
+              texlive-luatex85 \
+              texlive-cm-super \
+              texlive-cyrillic \
+              texlive-hyphen-base \
+              texlive-luatexbase \
               texlive-cm-super \
               texlive-collection-latexrecommended \\
               texlive-collection-fontsrecommended \\
