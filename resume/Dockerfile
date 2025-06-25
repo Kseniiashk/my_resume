@@ -1,12 +1,10 @@
 FROM fedora:31
 
+# Обновление до Fedora 32
 RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
 RUN dnf upgrade -y && dnf update -y
 
-COPY build.sh choose_system.py /app/
-COPY CV/resume.tex /app/resume.tex
-COPY altacv.cls /app/
-
+# Установка пакетов
 RUN dnf install -y \
     texlive-collection-latexrecommended \
     texlive-collection-fontsrecommended \
@@ -22,6 +20,7 @@ RUN dnf install -y \
     texlive-hyphenat \
     texlive-graphics \
     texlive-tools \
+    texlive-luatex \  # Используем LuaLaTeX вместо XeLaTeX
     make \
     git \
     wget \
@@ -32,14 +31,22 @@ RUN dnf install -y \
     texlive-helvetic \
     texlive-carlito \
     texlive-fira \
-    liberation-fonts \
+    dejavu-sans-fonts \ 
     google-noto-sans-fonts \
-    dejavu-sans-fonts \
     && dnf clean all
+
+RUN cd /usr/share/fonts && \
+    wget https://github.com/liberationfonts/liberation-fonts/files/7261489/liberation-fonts-ttf-2.1.5.tar.gz && \
+    tar -xzf liberation-fonts-ttf-2.1.5.tar.gz && \
+    cp liberation-fonts-ttf-2.1.5/*.ttf . && \
+    rm -rf liberation-fonts-ttf-2.1.5*
+
 
 RUN fc-cache -fv
 
 WORKDIR /app
-
+COPY build.sh choose_system.py /app/
+COPY CV/resume.tex /app/resume.tex
+COPY altacv.cls /app/
 RUN chmod 755 build.sh
 CMD ["./build.sh"]
