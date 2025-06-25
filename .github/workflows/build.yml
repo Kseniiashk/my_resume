@@ -39,5 +39,15 @@ jobs:
           cp CV/resume.pdf public/cv/
           
           cat > public/index.html << "EOL"
-<!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="cv/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body> </html> EOL
+          <!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="cv/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body> </html> EOL
       
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true
+          keep_files: false
+          commit_message: "Auto-update: $(date -u +'%Y-%m-%d %H:%M')"
