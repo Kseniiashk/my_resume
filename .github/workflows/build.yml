@@ -19,15 +19,14 @@ jobs:
         
       - name: Build and run Docker container
         run: |
-          # Создаем структуру директорий
           mkdir -p resume
           cp CV/* resume/ || true
           cp altacv.cls resume/ || true
           cp build.sh resume/ || true
           cp choose_system.py resume/ || true
           
-          # Создаем Dockerfile БЕЗ ОТСТУПОВ для содержимого
-          cat << 'EOF' > Dockerfile
+          # Создаем Dockerfile
+          cat > Dockerfile << "EOF"
 FROM fedora:32
 
 # Установка пакетов
@@ -61,23 +60,18 @@ RUN dnf install -y \
     liberation-fonts \
     && dnf clean all
 
-# Рабочая директория
 WORKDIR /app
 
-# Копирование файлов
 COPY resume/build.sh .
 COPY resume/choose_system.py .
 COPY resume/resume.tex .
 COPY resume/altacv.cls .
 
-# Права на выполнение
 RUN chmod 755 build.sh
 
-# Команда запуска
 CMD ["./build.sh"]
 EOF
 
-          # Сборка и запуск контейнера
           docker build -t resume-builder .
           docker run --rm -v $(pwd)/output:/app/output resume-builder
 
@@ -98,18 +92,20 @@ EOF
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
-          echo '<!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="UTF-8">
-              <title>Resume - Ксения Шкулева</title>
-              <meta http-equiv="refresh" content="0; url=cv/resume.pdf">
-              <script>window.location.href="cv/resume.pdf";</script>
-            </head>
-            <body>
-              <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p>
-            </body>
-          </html>' > public/index.html
+          cat > public/index.html << "EOL"
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Resume - Ксения Шкулева</title>
+    <meta http-equiv="refresh" content="0; url=cv/resume.pdf">
+    <script>window.location.href="cv/resume.pdf";</script>
+  </head>
+  <body>
+    <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p>
+  </body>
+</html>
+EOL
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
