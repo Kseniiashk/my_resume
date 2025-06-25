@@ -33,6 +33,7 @@ jobs:
 
           # Установка пакетов
           RUN dnf install -y \\
+              texlive-cm-super \
               texlive-collection-latexrecommended \\
               texlive-collection-fontsrecommended \\
               texlive-collection-pictures \\
