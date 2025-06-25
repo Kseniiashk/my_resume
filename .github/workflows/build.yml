@@ -17,82 +17,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         
-      - name: Build and run Docker container
+      - name: Build with Fedora 32
         run: |
-          mkdir -p resume
-          cp CV/* resume/ || true
-          cp altacv.cls resume/ || true
-          cp build.sh resume/ || true
-          cp choose_system.py resume/ || true
-          
-          # Создаем Dockerfile
-          cat > Dockerfile << "EOF"
-FROM fedora:32
-
-# Установка пакетов
-RUN dnf install -y \
-    texlive-collection-latexrecommended \
-    texlive-collection-fontsrecommended \
-    texlive-collection-pictures \
-    texlive-collection-science \
-    texlive-collection-langcyrillic \
-    texlive-collection-latexextra \
-    texlive-collection-fontsextra \
-    texlive-wallpaper \
-    texlive-geometry \
-    texlive-fontawesome5 \
-    texlive-hyperref \
-    texlive-hyphenat \
-    texlive-graphics \
-    texlive-tools \
-    texlive-luatex \
-    texlive-luatex85 \
-    texlive-cm-super \
-    texlive-ctablestack \
-    texlive-luatexbase \
-    make \
-    git \
-    wget \
-    unzip \
-    python3 \
-    dejavu-sans-fonts \
-    google-noto-sans-fonts \
-    liberation-fonts \
-    && dnf clean all
-
-WORKDIR /app
-
-COPY resume/build.sh .
-COPY resume/choose_system.py .
-COPY resume/resume.tex .
-COPY resume/altacv.cls .
-
-RUN chmod 755 build.sh
-
-CMD ["./build.sh"]
-EOF
-
-          docker build -t resume-builder .
-          docker run --rm -v $(pwd)/output:/app/output resume-builder
-
-      - name: Verify PDF exists
-        run: |
-          if [ ! -f output/resume.pdf ]; then
-            echo "PDF file not generated!"
-            ls -la output
-            exit 1
-          else
-            echo "PDF generated successfully"
-            mv output/resume.pdf .
-            ls -lh resume.pdf
-          fi
+          # Запускаем контейнер Fedora 32
+          docker run --rm -v $(pwd):/resume -w /resume fedora:32 /bin/bash -c "
+            # Обновление системы
+            dnf update -y -q
+            
+            # Установка TeX Live и зависимостей
+            dnf install -y -q \
+              texlive-scheme-full \
+              texlive-collection-langcyrillic \
+              texlive-luatex \
+              dejavu-sans-fonts \
+              wget \
+              make
+            
+            # Переходим в директорию с резюме
+            cd CV
+            
+            # Сборка PDF
+            lualatex -interaction=nonstopmode resume.tex
+            lualatex -interaction=nonstopmode resume.tex
+          "
 
       - name: Prepare GitHub Pages
         run: |
           mkdir -p public/cv
-          cp resume.pdf public/cv/
+          cp CV/resume.pdf public/cv/
           
-          cat > public/index.html << "EOL"
+          cat << 'EOF' > public/index.html
 <!DOCTYPE html>
 <html>
   <head>
@@ -105,7 +59,7 @@ EOF
     <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p>
   </body>
 </html>
-EOL
+EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
