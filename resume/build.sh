@@ -1,9 +1,5 @@
 #!/bin/bash
 
-rm -f altacv.cls
-
-wget https://raw.githubusercontent.com/liantze/AltaCV/main/altacv.cls
-
 mkdir -p /usr/share/texmf/tex/latex/altacv
 cp altacv.cls /usr/share/texmf/tex/latex/altacv/
 texhash
