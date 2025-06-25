@@ -17,28 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         
-      - name: Setup Fedora 32 Environment
+      - name: Build and run Docker container
         run: |
+          # Создаем структуру директорий
+          mkdir -p resume
+          cp CV/* resume/ || true  # Копируем файлы резюме
+          cp altacv.cls resume/ || true
+          
           # Создаем Dockerfile
           cat << EOF > Dockerfile
-          FROM fedora:31
-          
-          # Обновление до Fedora 32
-          RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
-          RUN dnf upgrade -y && dnf update -y
-
-          COPY resume/build.sh resume/choose_system.py /app/
-          COPY resume/resume.tex /app/resume.tex
-          COPY resume/altacv.cls /app/
+          FROM fedora:32  # Используем Fedora 32 напрямую
 
           # Установка пакетов
           RUN dnf install -y \\
-              texlive-luatex85 \
-              texlive-cm-super \
-              texlive-cyrillic \
-              texlive-hyphen-base \
-              texlive-luatexbase \
-              texlive-cm-super \
               texlive-collection-latexrecommended \\
               texlive-collection-fontsrecommended \\
               texlive-collection-pictures \\
@@ -53,43 +44,50 @@ jobs:
               texlive-hyphenat \\
               texlive-graphics \\
               texlive-tools \\
+              texlive-luatex \\
+              texlive-luatex85 \\
+              texlive-cm-super \\
+              texlive-ctablestack \\
+              texlive-luatexbase \\
               make \\
               git \\
               wget \\
               unzip \\
               python3 \\
-              texlive-lm \\
-              texlive-psnfss \\
-              texlive-helvetic \\
-              texlive-carlito \\
-              texlive-fira \\
-              liberation-fonts \\
+              dejavu-sans-fonts \\
               google-noto-sans-fonts \\
-              texlive-xetex \\
+              liberation-fonts \\
               && dnf clean all
-              
-          RUN rm /app/altacv.cls
-          RUN wget -O /app/altacv.cls https://raw.githubusercontent.com/liantze/AltaCV/main/altacv.cls
 
-          # Установка шрифтов
-          RUN fc-cache -fv
-
+          # Рабочая директория
           WORKDIR /app
+          
+          # Копирование файлов
+          COPY resume/build.sh .
+          COPY resume/choose_system.py .
+          COPY resume/resume.tex .
+          COPY resume/altacv.cls .
+          
+          # Права на выполнение
           RUN chmod 755 build.sh
+          
+          # Команда запуска
           CMD ["./build.sh"]
           EOF
           
-          docker build -t fedora32-tex .
-          docker run --rm -v $(pwd):/app/output fedora32-tex
+          # Сборка и запуск контейнера
+          docker build -t resume-builder .
+          docker run --rm -v $(pwd)/output:/app/output resume-builder
 
       - name: Verify PDF exists
         run: |
-          if [ ! -f resume.pdf ]; then
+          if [ ! -f output/resume.pdf ]; then
             echo "PDF file not generated!"
-            ls -la
+            ls -la output
             exit 1
           else
             echo "PDF generated successfully"
+            mv output/resume.pdf .
             ls -lh resume.pdf
           fi
 
@@ -97,9 +95,6 @@ jobs:
         run: |
           mkdir -p public/cv
           cp resume.pdf public/cv/
-          
-          # Если используются изображения в резюме
-          # cp images/* public/cv/  # Раскомментируйте, если нужны изображения
           
           # Создаем редирект
           echo '<!DOCTYPE html>
