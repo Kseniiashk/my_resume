@@ -21,60 +21,62 @@ jobs:
         run: |
           # Создаем структуру директорий
           mkdir -p resume
-          cp CV/* resume/ || true  # Копируем файлы резюме
+          cp CV/* resume/ || true
           cp altacv.cls resume/ || true
+          cp build.sh resume/ || true
+          cp choose_system.py resume/ || true
           
-          # Создаем Dockerfile
-          cat << EOF > Dockerfile
-          FROM fedora:32  # Используем Fedora 32 напрямую
+          # Создаем Dockerfile БЕЗ ОТСТУПОВ для содержимого
+          cat << 'EOF' > Dockerfile
+FROM fedora:32
 
-          # Установка пакетов
-          RUN dnf install -y \\
-              texlive-collection-latexrecommended \\
-              texlive-collection-fontsrecommended \\
-              texlive-collection-pictures \\
-              texlive-collection-science \\
-              texlive-collection-langcyrillic \\
-              texlive-collection-latexextra \\
-              texlive-collection-fontsextra \\
-              texlive-wallpaper \\
-              texlive-geometry \\
-              texlive-fontawesome5 \\
-              texlive-hyperref \\
-              texlive-hyphenat \\
-              texlive-graphics \\
-              texlive-tools \\
-              texlive-luatex \\
-              texlive-luatex85 \\
-              texlive-cm-super \\
-              texlive-ctablestack \\
-              texlive-luatexbase \\
-              make \\
-              git \\
-              wget \\
-              unzip \\
-              python3 \\
-              dejavu-sans-fonts \\
-              google-noto-sans-fonts \\
-              liberation-fonts \\
-              && dnf clean all
+# Установка пакетов
+RUN dnf install -y \
+    texlive-collection-latexrecommended \
+    texlive-collection-fontsrecommended \
+    texlive-collection-pictures \
+    texlive-collection-science \
+    texlive-collection-langcyrillic \
+    texlive-collection-latexextra \
+    texlive-collection-fontsextra \
+    texlive-wallpaper \
+    texlive-geometry \
+    texlive-fontawesome5 \
+    texlive-hyperref \
+    texlive-hyphenat \
+    texlive-graphics \
+    texlive-tools \
+    texlive-luatex \
+    texlive-luatex85 \
+    texlive-cm-super \
+    texlive-ctablestack \
+    texlive-luatexbase \
+    make \
+    git \
+    wget \
+    unzip \
+    python3 \
+    dejavu-sans-fonts \
+    google-noto-sans-fonts \
+    liberation-fonts \
+    && dnf clean all
 
-          # Рабочая директория
-          WORKDIR /app
-          
-          # Копирование файлов
-          COPY resume/build.sh .
-          COPY resume/choose_system.py .
-          COPY resume/resume.tex .
-          COPY resume/altacv.cls .
-          
-          # Права на выполнение
-          RUN chmod 755 build.sh
-          
-          # Команда запуска
-          CMD ["./build.sh"]
-          EOF
-          
+# Рабочая директория
+WORKDIR /app
+
+# Копирование файлов
+COPY resume/build.sh .
+COPY resume/choose_system.py .
+COPY resume/resume.tex .
+COPY resume/altacv.cls .
+
+# Права на выполнение
+RUN chmod 755 build.sh
+
+# Команда запуска
+CMD ["./build.sh"]
+EOF
+
           # Сборка и запуск контейнера
           docker build -t resume-builder .
           docker run --rm -v $(pwd)/output:/app/output resume-builder
@@ -96,7 +98,6 @@ jobs:
           mkdir -p public/cv
           cp resume.pdf public/cv/
           
-          # Создаем редирект
           echo '<!DOCTYPE html>
           <html>
             <head>
