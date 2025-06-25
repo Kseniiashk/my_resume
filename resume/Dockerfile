@@ -20,7 +20,10 @@ RUN dnf install -y \
     texlive-hyphenat \
     texlive-graphics \
     texlive-tools \
-    texlive-luatex \  # Используем LuaLaTeX вместо XeLaTeX
+    texlive-luatex \
+    texlive-ctablestack \
+    texlive-luatexbase \  
+    texlive-texlive.infra \
     make \
     git \
     wget \
@@ -35,18 +38,13 @@ RUN dnf install -y \
     google-noto-sans-fonts \
     && dnf clean all
 
-RUN cd /usr/share/fonts && \
-    wget https://github.com/liberationfonts/liberation-fonts/files/7261489/liberation-fonts-ttf-2.1.5.tar.gz && \
-    tar -xzf liberation-fonts-ttf-2.1.5.tar.gz && \
-    cp liberation-fonts-ttf-2.1.5/*.ttf . && \
-    rm -rf liberation-fonts-ttf-2.1.5*
-
+RUN dnf install -y liberation-fonts
 
 RUN fc-cache -fv
 
 WORKDIR /app
 COPY build.sh choose_system.py /app/
-COPY CV/resume.tex /app/resume.tex
+COPY resume.tex /app/  # Изменено: копируем напрямую в /app
 COPY altacv.cls /app/
 RUN chmod 755 build.sh
 CMD ["./build.sh"]
