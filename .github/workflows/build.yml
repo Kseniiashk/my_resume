@@ -28,7 +28,7 @@ jobs:
               dejavu-sans-fonts \
               wget \
               make
-            cd CV
+            cd resume
             lualatex -interaction=nonstopmode resume.tex
             lualatex -interaction=nonstopmode resume.tex
           "
@@ -39,7 +39,7 @@ jobs:
           cp CV/resume.pdf public/cv/
           
           cat > public/index.html << "EOL"
-          <!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="cv/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body> </html> EOL
+          <!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="resume/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body> </html> EOL
       
       
       - name: Deploy to GitHub Pages
