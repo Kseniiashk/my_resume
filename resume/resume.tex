@@ -6,10 +6,19 @@
 \usepackage{fontspec}
 \usepackage{xcolor}
 
-\setmainfont{DejaVu Sans}
+% Надежная настройка шрифта
+\setmainfont{DejaVu Sans}[
+  Path = /usr/share/fonts/,
+  Extension = .ttf,
+  UprightFont = *,
+  BoldFont = *-Bold,
+  ItalicFont = *-Oblique,
+  BoldItalicFont = *-BoldOblique
+]
 
-% Настройки стиля
-\geometry{left=1cm, right=1cm, top=1cm, bottom=1cm}
+% Настройки геометрии
+\geometry{a4paper, left=1cm, right=1cm, top=1cm, bottom=1cm}
+
 \renewcommand{\divider}{\textcolor{body!30}{\hspace{1pt}} % Добавлен цвет разделителя
 \definecolor{VividPurple}{HTML}{000000}
 \definecolor{SlateGrey}{HTML}{2E2E2E}
