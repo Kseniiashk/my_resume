@@ -34,6 +34,7 @@ RUN dnf install -y \
     texlive-fira \
     liberation-fonts \
     google-noto-sans-fonts \
+    dejavu-sans-fonts \
     && dnf clean all
 
 RUN fc-cache -fv
