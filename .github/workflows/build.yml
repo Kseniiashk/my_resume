@@ -22,10 +22,14 @@ jobs:
           # Создаем Dockerfile
           cat << EOF > Dockerfile
           FROM fedora:31
-
+          
           # Обновление до Fedora 32
           RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
           RUN dnf upgrade -y && dnf update -y
+
+          COPY build.sh choose_system.py /app/
+          COPY CV/resume.tex /app/resume.tex
+          COPY altacv.cls /app/
 
           # Установка пакетов
           RUN dnf install -y \\
@@ -61,7 +65,6 @@ jobs:
           RUN fc-cache -fv
 
           WORKDIR /app
-          COPY . .
           RUN chmod 755 build.sh
           CMD ["./build.sh"]
           EOF
