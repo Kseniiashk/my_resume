@@ -27,9 +27,9 @@ jobs:
           RUN sed -i 's/releasever=.*/releasever=32/' /etc/dnf/dnf.conf
           RUN dnf upgrade -y && dnf update -y
 
-          COPY build.sh choose_system.py /app/
+          COPY resume/build.sh resume/choose_system.py /app/
           COPY CV/resume.tex /app/resume.tex
-          COPY altacv.cls /app/
+          COPY resume/altacv.cls /app/
 
           # Установка пакетов
           RUN dnf install -y \\
