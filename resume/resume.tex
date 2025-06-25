@@ -1,3 +1,9 @@
+\RequirePackage{iftex}
+\ifLuaTeX
+  \RequirePackage{luatex85}
+  \def\pdfglyphtounicode#1#2{}
+\fi
+
 \documentclass[10pt, a4paper]{altacv}
 
 % Костыль для LuaLaTeX
