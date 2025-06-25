@@ -61,6 +61,9 @@ jobs:
               google-noto-sans-fonts \\
               texlive-xetex \\
               && dnf clean all
+              
+          RUN rm /app/altacv.cls
+          RUN wget -O /app/altacv.cls https://raw.githubusercontent.com/liantze/AltaCV/main/altacv.cls
 
           # Установка шрифтов
           RUN fc-cache -fv
