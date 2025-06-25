@@ -28,7 +28,7 @@ jobs:
           RUN dnf upgrade -y && dnf update -y
 
           COPY resume/build.sh resume/choose_system.py /app/
-          COPY CV/resume.tex /app/resume.tex
+          COPY resume/resume.tex /app/resume.tex
           COPY resume/altacv.cls /app/
 
           # Установка пакетов
