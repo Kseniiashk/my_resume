@@ -1,4 +1,4 @@
-name: Build Resume
+name: Build and Deploy Resume
 
 on:
   push:
@@ -19,12 +19,8 @@ jobs:
         
       - name: Build with Fedora 32
         run: |
-          # Запускаем контейнер Fedora 32
           docker run --rm -v $(pwd):/resume -w /resume fedora:32 /bin/bash -c "
-            # Обновление системы
             dnf update -y -q
-            
-            # Установка TeX Live и зависимостей
             dnf install -y -q \
               texlive-scheme-full \
               texlive-collection-langcyrillic \
@@ -32,11 +28,7 @@ jobs:
               dejavu-sans-fonts \
               wget \
               make
-            
-            # Переходим в директорию с резюме
             cd CV
-            
-            # Сборка PDF
             lualatex -interaction=nonstopmode resume.tex
             lualatex -interaction=nonstopmode resume.tex
           "
@@ -46,9 +38,8 @@ jobs:
           mkdir -p public/cv
           cp CV/resume.pdf public/cv/
           
-          cat << 'EOF' > public/index.html
-<!DOCTYPE html? <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="cv/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body </html>
-EOF
+          cat > public/index.html << "EOL"
+<!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Resume - Ксения Шкулева</title> <meta http-equiv="refresh" content="0; url=cv/resume.pdf"> <script>window.location.href="cv/resume.pdf";</script> </head> <body> <p>Redirecting to <a href="cv/resume.pdf">resume.pdf</a></p> </body> </html>
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
