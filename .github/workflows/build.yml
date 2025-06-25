@@ -59,6 +59,7 @@ jobs:
               texlive-fira \\
               liberation-fonts \\
               google-noto-sans-fonts \\
+              texlive-xetex \\
               && dnf clean all
 
           # Установка шрифтов
